@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full w-full">
+  <head>
+    <title>0x0a : Rotating Colourful Cube</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Icons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"></script>
+    <!-- For computing random points using d3-delaunay -->
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  </head>
+  <body class="h-full w-full text-sm">
+    <div class="container flex flex-col nowrap gap-2
+                p-8 h-full m-auto">
+      <header class="flex-none flex flex-row
+                     justify-between items-baseline">
+        <h1 class="text-2xl font-bold">0x0a : Rotating Colourful Cube</h1>
+        <p class="text-right" id="by"></p>
+      </header>
+      <div class="flex-1 flex flex-col lg:flex-row
+                  nowrap gap-8">
+        <div class="flex-1 relative">
+          <!-- <img class="hidden" id="refImg"/> -->
+          <canvas id="myCanvas"
+                  width="10" height="1"
+                  class=" bg-slate-100 w-full h-full"></canvas>
+          <div class="absolute top-0 right-0 text-center">
+            <!-- <a class="cursor-pointer block p-2 -->
+            <!--           text-blue-300 hover:text-blue-500 -->
+            <!--           active:text-blue-700" -->
+            <!--    href="javascript:flipVisible()" -->
+            <!--    title="Switch to Reference Image." -->
+            <!--    ><ion-icon -->
+            <!--       name="image" -->
+            <!--       id="switchButtonIcon" -->
+            <!--       class="text-3xl" -->
+            <!--       ></ion-icon><br/> -->
+            <!--   <span class="text-sm" -->
+            <!--         id="switchButtonText" -->
+            <!--         >Show Image</span></a> -->
+            <a class="cursor-pointer block p-2
+                      text-blue-300 hover:text-blue-500
+                      active:text-blue-700"
+               href="javascript:saveVisible()"
+               title="Download canvas as image."
+               ><ion-icon
+                  name="save"
+                  class="text-3xl"
+                  ></ion-icon><br/>
+              <span class="text-sm">Download</span></a>
+          </div>
+        </div>
+
+        <div id="controls"
+             class="flex-none flex flex-col gap-2 hidden
+                    lg:max-w-md mb-2">
+          <header class="flex-none flex flex-row
+                         justify-between items-baseline">
+            <h2 class="text-xl font-bold">Controls</h2>
+            <button class="p-0.5 px-8 bg-lime-100
+                           border-lime-500 border
+                           text-lime-600 font-bold
+                           w-half text-base rounded
+                           hidden"
+                    id="controls-submit"
+                    >Update</button>            
+          </header>
+          <div class="control flex flex-row gap-4
+                      items-baseline justify-between">
+            <input name="isCamTranslate"
+                   id="isCamTranslate"
+                   type="checkbox"
+                   class="flex-none"
+                   />
+            <h3 class="flex-none text-sm">Camera Translate
+              to: </h3>
+            <input name="x"
+                   id="x"
+                   type="number"
+                   min="0"
+                   max="1"
+                   step="0.002"
+                   class="flex-1 border p-1 rounded"
+                   placeholder="x (= 0)"
+                   />
+            <input name="y"
+                   id="y"
+                   type="number"
+                   min="0"
+                   max="1"
+                   step="0.002"
+                   class="flex-1 border p-1 rounded"
+                   placeholder="y (= 0)"
+                   />
+            <input name="z"
+                   id="z"
+                   type="number"
+                   min="0"
+                   max="1"
+                   step="0.002"
+                   class="flex-1 border p-1 rounded"
+                   placeholder="z (= 0)"
+                   />
+          </div>
+          <div class="control flex flex-row gap-4
+                      items-baseline justify-between ">
+            <input name="isCamRotate"
+                   id="isCamRotate"
+                   type="checkbox"
+                   class="flex-none"
+                   />
+            <h3 class="flex-none text-sm">Camera Rotate by: </h3>
+            <input name="pitchRadians"
+                   id="pitchRadians"
+                   type="number"
+                   min="0"
+                   max="6.283"
+                   step="0.002"
+                   class="flex-1 border p-1 rounded"
+                   placeholder="Pitch (rad)"
+                   />
+            <input name="yawRadians"
+                   id="yawRadians"
+                   type="number"
+                   min="0"
+                   max="6.283"
+                   step="0.002"
+                   class="flex-1 border p-1 rounded"
+                   placeholder="Yaw (rad)"
+                   />
+            <input name="rollRadians"
+                   id="rollRadians"
+                   type="number"
+                   min="0"
+                   max="6.283"
+                   step="0.002"
+                   class="flex-1 border p-1 rounded"
+                   placeholder="Roll (rad)"
+                   />
+          </div>
+          <div class="control flex flex-row gap-4
+                      items-baseline justify-between ">
+            <input name="isCamPerspective"
+                   id="isCamPerspective"
+                   type="checkbox"
+                   class="flex-none"
+                   />
+            <h3 class="flex-none text-sm">Camera Perspective: </h3>
+            <input name="camNear"
+                   id="camNear"
+                   type="number"
+                   min="0"
+                   max="5"
+                   step="0.002"
+                   class="flex-1 border p-1 rounded"
+                   placeholder="Cam Near (= 0)"
+                   />
+            <input name="camFar"
+                   id="camFar"
+                   type="number"
+                   min="0"
+                   max="5"
+                   step="0.002"
+                   class="flex-1 border p-1 rounded"
+                   placeholder="Cam Far (= 5)"
+                   />
+            <input name="camfov"
+                   id="camFov"
+                   type="number"
+                   min="0"
+                   max="6.2832"
+                   step="0.002"
+                   class="flex-1 border p-1 rounded"
+                   placeholder="FoV (= 2π/3 rad)"
+                   />
+          </div>
+          <div class="control flex flex-row gap-4
+                      items-baseline justify-between ">
+            <h3 class="flex-none text-sm">Cube Rotation: </h3>
+            <input name="cubeRpm"
+                   id="cubeRpm"
+                   type="number"
+                   min="1"
+                   max="60"
+                   step="0.002"
+                   class="flex-1 border p-1 rounded"
+                   placeholder="RPM"
+                   />
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <script type="text/javascript"
+            src="./utils.js"></script>
+    <script type="text/javascript"
+            src="./domel.js"></script>
+    <script type="text/javascript"
+            src="./delayable.js"></script>
+    <script type="text/javascript"
+            src="./controls.js"></script>
+    <script type="text/javascript"
+            src="./shaders.js"></script>
+    <script type="text/javascript"
+            src="./buffer.js"></script>
+    <script type="text/javascript"
+            src="./cached-load.js"></script>
+    <!-- <script type="text/javascript" -->
+    <!--         src="./ref-triangles/index.js"></script> -->
+    <script type="text/javascript"
+            src="./ref-triangles-2/index.js"></script>
+    <script type="text/javascript"
+            src="./experiment.js"></script>
+    <script type="text/javascript"
+            src="./main.js"></script>
+    <script type="text/javascript">
+      main()
+    </script>
+  </body>
+</html>
